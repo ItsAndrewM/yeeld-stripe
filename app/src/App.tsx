@@ -1,35 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-function App() {
-  const [count, setCount] = useState(0)
+const pages = import.meta.glob<{
+	default: React.ComponentType;
+	loader?: () => Promise<unknown>;
+	action?: () => Promise<unknown>;
+	ErrorBoundary?: React.ComponentType;
+}>("./pages/**/*.tsx", { eager: true });
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface RouteConfig {
+	path: string;
+	Element: React.ComponentType;
+	loader?: () => Promise<unknown>;
+	action?: () => Promise<unknown>;
+	ErrorBoundary?: React.ComponentType;
 }
 
-export default App
+const routes: RouteConfig[] = [];
+for (const path of Object.keys(pages)) {
+	const fileName = path.match(/\.\/pages\/(.*)\.tsx$/)?.[1];
+	if (!fileName) {
+		continue;
+	}
+
+	const normalizedPathName = fileName.includes("$")
+		? fileName.replace("$", ":")
+		: fileName.replace(/\[(.*?)\]/g, ":$1").replace(/\/index$/, "");
+
+	const page = pages[path];
+
+	if (!page || !page.default) {
+		console.error(`Page not found or does not have a default export: ${path}`);
+		continue;
+	}
+
+	routes.push({
+		path: fileName === "index" ? "/" : `/${normalizedPathName.toLowerCase()}`,
+		Element: page.default,
+		loader: page.loader,
+		action: page.action,
+		ErrorBoundary: page.ErrorBoundary,
+	});
+}
+
+console.log("Routes:", routes);
+console.log("Pages:", pages);
+
+const router = createBrowserRouter(
+	routes.map(({ Element, ErrorBoundary, ...rest }) => ({
+		...rest,
+		element: <Element />,
+		...(ErrorBoundary && { errorElement: <ErrorBoundary /> }),
+	}))
+);
+
+function App() {
+	return <RouterProvider router={router} />;
+}
+
+export default App;

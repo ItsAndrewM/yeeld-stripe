@@ -35,7 +35,13 @@ export const createAuthorization = async (req, res) => {
 				.status(500)
 				.json({ success: false, error: "Payment creation failed" });
 		}
-		res.status(200).json({ success: true, authorization: paymentIntent.id });
+		res
+			.status(200)
+			.json({
+				success: true,
+				authorization: paymentIntent.id,
+				client_secret: paymentIntent.client_secret,
+			});
 	} catch (err) {
 		res.status(500).json({ success: false, error: err.message });
 	}
