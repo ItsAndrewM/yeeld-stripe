@@ -1,17 +1,16 @@
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import CheckoutForm from "../components/checkoutForm";
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
 	return (
-		<Elements
-			stripe={stripePromise}
-			options={{ clientSecret: import.meta.env.VITE_CLIENT_SECRET }}
-		>
-			<CheckoutForm />
-		</Elements>
+		<div className="container mx-auto flex flex-col items-center justify-center">
+			<h1>Hello</h1>
+			<Link
+				className="border border-black rounded-md bg-accent-color px-4 py-2 text-black hover:bg-black hover:text-white transition-colors duration-300"
+				to="/payment"
+			>
+				Pay Now
+			</Link>
+		</div>
 	);
 };
 

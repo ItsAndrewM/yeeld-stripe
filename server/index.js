@@ -4,10 +4,12 @@ import dotenv from "dotenv";
 import createCustomerRoutes from "./routes/customer.js";
 import paymentsRoutes from "./routes/payments.js";
 import refundRoutes from "./routes/refunds.js";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
 
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 app.use(morgan("dev"));
 

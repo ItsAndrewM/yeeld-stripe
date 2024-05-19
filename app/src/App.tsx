@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Layout from "./components/layout";
 
 const pages = import.meta.glob<{
 	default: React.ComponentType;
@@ -48,7 +49,11 @@ console.log("Pages:", pages);
 const router = createBrowserRouter(
 	routes.map(({ Element, ErrorBoundary, ...rest }) => ({
 		...rest,
-		element: <Element />,
+		element: (
+			<Layout>
+				<Element />
+			</Layout>
+		),
 		...(ErrorBoundary && { errorElement: <ErrorBoundary /> }),
 	}))
 );
